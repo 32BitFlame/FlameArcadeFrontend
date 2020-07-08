@@ -69,3 +69,9 @@ $(document).ready(function() {
     })
   });
   });
+
+function input_loop() {
+  var gamepads = navigator.getGamepads()
+  console.log(gamepads)
+}
+input_loop()

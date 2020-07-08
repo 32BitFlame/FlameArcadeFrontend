@@ -8,7 +8,7 @@
     "start": "electron ."
   },
   "author": "Benjamin Houzenga",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "devDependencies": {
     "electron": "^9.0.5"
   },
