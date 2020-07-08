@@ -1,0 +1,19 @@
+# This is a sample gamelists paths file. it contains sample info
+# for an nes gamelist. Although an actual file can hold more systems
+# The roms should have the listed extension and the images
+# Should share the same name as the roms with their natural extension
+# If you're copying this remove all lines with a #
+[
+  {
+    "image-aspect-ratio":"16:9", # This line should hold aspect ratio of the images representing the games
+    "shortname":"nes",
+    "gamelistfile":"path", # A json file containing the games and their metadata
+    "runcmd":"nestopia --fullscreen {rom_path}",
+    "systemlaunchdate": 1985,
+    "special_graphic": { # This image will appear in the background
+      "enabled":false,
+      "imgpath":"YOUR-IMAGE-PATH",
+      "enable-gradient":true
+    }
+  }
+]

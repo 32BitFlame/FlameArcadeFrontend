@@ -1,0 +1,7 @@
+# This file contains the configuration for controllers
+{
+  right: "+0",
+  left: "-0",
+  up: "+1",
+  down: "-1"
+}

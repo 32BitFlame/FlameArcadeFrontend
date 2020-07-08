@@ -1,0 +1,11 @@
+.system_container {
+  width: 100px;
+  height: 100px;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  white-space: nowrap;
+  display: inline-block;
+}
+.game_container {
+  display: inline-block;
+}
