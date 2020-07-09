@@ -1,5 +1,5 @@
 console.log("text");
-const input_delay = 24
+const input_delay = 400
 let game_template = "<div data-gamelink=`{link}` data-system=`{system}`>{name}</div>"
 let system_template = "<div></div>"
 
