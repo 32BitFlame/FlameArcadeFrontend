@@ -16,6 +16,7 @@ function dumpJson(filePath) {
 
 console.log(dumpJson("./gamelist-paths.json"))
 function createWindow () {
+  console.log("creating window")
   Window = new BrowserWindow({
     width: 800,
     height: 600,
@@ -26,6 +27,36 @@ function createWindow () {
     frame: false
   })
   Window.loadFile('index.html');
+}
+
+function format_string(string, parameters) {
+  var escape_start = 0
+  var escaped = false
+  var string_arr = string.split('')
+  var escape_buffer = ""
+  for(i = 0; i < string_arr.length; i++) {
+    var char = string_arr[i]
+    //console.log(`Char: ${i}; ${char}, escaped: ${escaped}`)
+    if(!escaped) {
+      if(char == "{") {
+        //console.log(`Starting escape at ${i}`)
+        escaped = true
+        escape_start = i
+      }
+    } else {
+      if(char == "}") {
+        //console.log(string_arr.join(''))
+        //console.log(`removing ${escape_buffer.split('').length}`)
+        string_arr.splice(escape_start, escape_buffer.split('').length + 2, parameters[escape_buffer])
+        return format_string(string_arr.join(''), parameters)
+        escaped = false
+        //console.log(string_arr.join(''))
+      } else {
+        escape_buffer += char
+      }
+    }
+  }
+  return string_arr.join('')
 }
 
 var spawn = require('child_process').spawn
@@ -44,7 +75,7 @@ function create_subprocess(process) {
   // Minimize when started
   Window.minimize()
   var process = spawn(cmd, args)
-  prc.on('close', function(code) {
+  process.on('close', function(code) {
     console.log(`Exit code: ${code}`)
     // Maximize when subprocess is completed
     Window.maximize()
@@ -69,8 +100,6 @@ httpServer.post('/set_screen_res/', function(req, res) {
   Window.setFullScreen(true);
   Window.show()
 })
-
-
 
 function get_items() {
 
@@ -100,8 +129,18 @@ httpServer.get('/get_games/', function(req, res) {
       processed_systems[systemname] = new_sys
     })
     res.setHeader('Content-Type', 'application/json');
+    console.log(system_run_cmds)
     res.end(JSON.stringify(processed_systems));
 })
+
+httpServer.post('/start_game/', function(req, res) {
+  var path = req.body.path
+  var system = req.body.system
+  console.log(`Loading ${path} with system ${system}`)
+  var run_cmd = format_string(system_run_cmds[system], {
+    "rom_path":path
+  })
+});
 
 ipcMain.on('send_input', function(e, arg) {
   // Send controller inputs to be processed here
@@ -111,7 +150,7 @@ ipcMain.on('send_input', function(e, arg) {
   var current_mouse_position = robot.getMousePos()
   var current_mouse_x = current_mouse_position.x
   var current_mouse_y = current_mouse_position.y
-  robot.moveMouseSmooth(current_mouse_x + req.axes.horizontal, current_mouse_y + req.axes.vertical)
+  robot.moveMouse(current_mouse_x + req.axes.horizontal, current_mouse_y + req.axes.vertical)
   if(req.click) {
     //console.log("clicked")
     //console.log(req.axes)

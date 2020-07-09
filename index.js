@@ -1,6 +1,6 @@
 console.log("text");
-const input_delay = 6
-let game_template = "<div>{name}</div>"
+const input_delay = 24
+let game_template = "<div data-gamelink=`{link}` data-system=`{system}`>{name}</div>"
 let system_template = "<div></div>"
 
 function sleep(t) {
@@ -43,7 +43,7 @@ function format_string(string, parameters) {
   return string_arr.join('')
 }
 
-
+var selected_game_div
 $(document).ready(function() {
   // Sends screen resolution to backend
   var screen_width = window.screen.width
@@ -66,24 +66,58 @@ $(document).ready(function() {
       }))
       system_container.addClass("system_container")
       system.games.forEach(function(game, index) {
+        console.log("Adding...")
         console.log(format_string(game_template, {
           // TODO: Put game configuration here
-          "name":game.name
+          "name":game.name,
+          "link":game.path,
+          "system":system.name
         }))
-
         var game_container = $(format_string(game_template, {
           // TODO: Put game configuration here
-          "name":game.name
+          "name":game.name,
+          "link":game.path,
+          "system":system.name
         }));
         game_container.addClass("game_container")
+        game_container.hover(function() {
+            // Enter hover
+            console.log("selecting game div")
+            selected_game_div = $(this)
+          }, function() {
+              // Exit hover
+              $(this).css("border-style", "solid")
+              selected_game_div = null;
+          });
         system_container.append(game_container)
+        });
         $("#systems_container").append(system_container)
       })
     })
+    setTimeout(input_loop, 10);
   });
-  setInterval(input_loop, input_delay)
-});
 
+$(".game_container").click(function() {
+  var gamepath = $(this).attr("data-path")
+  var system = $(this).attr("data-system")
+  console.log(`Loading ${gamepath} for system: ${system}`)
+  $.post("http://localhost:5665/start_game", {
+    "path":gamepath,
+    "system":system
+  })
+});
+const border_toggle_delay = 100;
+function toggle_game_container_border() {
+  if(selected_game_div != null) {
+    if(selected_game_div.css("border-style") == "outset") {
+      selected_game_div.css("border-style", "inset")
+    } else {
+      selected_game_div.css("border-style", "outset")
+    }
+  }
+
+}
+setInterval(toggle_game_container_border, border_toggle_delay)
 function is_btn_pressed(btn) {
   return typeof(btn) == "object" ? btn.pressed : b == 1.0
 }
@@ -114,7 +148,8 @@ window.addEventListener('gamepaddisconnected', function(e) {
 
 let horizontal_threshold = 0;
 let vertical_threshold = 0;
-let mouse_spd = 1;
+let mouse_spd = 10;
+const {ipcRenderer} = require('electron')
 function input_loop() {
   // TODO: Set up controller configuration
   var horizontal_input = 0;
@@ -134,23 +169,25 @@ function input_loop() {
     gamepads_pressed_prev_frame[gamepad.index] = is_clicked;
   };
   var processed_horizontal
-  if(horizontal_input > horizontal_threshold) {
+  /*if(horizontal_input > horizontal_threshold) {
     processed_horizontal = horizontal_input * mouse_spd
   } else if (horizontal_input < -horizontal_threshold) {
     processed_horizontal = horizontal_input * mouse_spd
   } else {
     processed_horizontal = 0
   }
-
+  */
+  processed_horizontal = horizontal_input * mouse_spd
   var processed_vertical;
-  if(vertical_input > vertical_threshold) {
+  /*if(vertical_input > vertical_threshold) {
     processed_vertical = vertical_input * mouse_spd
   } else if (vertical_input < -vertical_threshold) {
     processed_vertical = vertical_input * mouse_spd
   } else {
     processed_vertical = 0
   }
-
+  */
+  processed_vertical = vertical_input * mouse_spd
   var inputs = {
     "axes":{
       "horizontal":processed_horizontal,
@@ -159,10 +196,46 @@ function input_loop() {
     "click":click_btn_down
   }
   if(inputs['click']) {
-    console.log("pressed")
+    console.log(`raw_normal: ${horizontal_input}, processed_vertical: ${vertical_input}`)
     console.log(`processed_horizontal: ${processed_horizontal}, processed_vertical: ${processed_vertical}`)
+    if(selected_game_div != null) {
+      var gamepath = selected_game_div.attr("data-gamelink")
+      var system = selected_game_div.attr("data-system")
+      console.log(`starting ${gamepath} on system ${system} `)
+      $.post("http://localhost:5665/start_game", {
+        "path":gamepath,
+        "system":system
+      })
+    }
   }
-  const {ipcRenderer} = require('electron')
   ipcRenderer.send('send_input', JSON.stringify(inputs));
-  window.requestAnimationFrame(input_loop);
+  //sleep(input_delay)
+  //input_loop()
 }
+var cursor_offset = {
+   left: 0,
+   top: 0
+}
+$("html").on("mousemove", function (e) {
+  $('#cursor').offset({
+     left: (e.pageX - cursor_offset.left)
+   , top : (e.pageY - cursor_offset.top)
+  })
+
+});
+
+setInterval(input_loop, input_delay)
+
+const clock_update_delay = 200;
+const seconds_enabled = true;
+const twenty_four_hour_time = false
+function update_clock() {
+  var current_date = new Date();
+  var time = ""
+  var time = `${twenty_four_hour_time ? current_date.getHours(): current_date.getHours() % 12}:${current_date.getMinutes()}`;
+  if(seconds_enabled) {
+    time += `:${current_date.getSeconds()}`
+  }
+  $("#clock").text(time)
+}
+setInterval(update_clock, clock_update_delay)

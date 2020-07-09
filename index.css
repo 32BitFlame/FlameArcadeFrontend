@@ -1,11 +1,74 @@
+html {
+  background-image: url("./main_images/pixelstarbg.gif");
+  cursor: none;
+  font-family: Sans-serif;
+}
+
+body {
+  background-color: rgba(0,0,0,0);
+}
+.systems_container {
+  display: flex;
+  justify-content: center;
+}
 .system_container {
-  width: 100px;
-  height: 100px;
-  overflow-x: scroll;
+  display: flex;
+  color: white;
+  background-color: rgba(50,0,0,0.3);
+  width: 80%;
+  height: auto;
   overflow-y: hidden;
   white-space: nowrap;
-  display: inline-block;
 }
 .game_container {
+  width: 25%;
+  min-height: 200px;
+  background-color: rgba(0, 102, 255, 0.5);
+  border-style: solid;
+  border-width: 4px;
+  overflow: hidden;
+  font-size: 100%;
   display: inline-block;
+  text-align: center;
+  transition-property: width, height, min-height, font-size;
+  transition-duration: 1s;
+}
+.game_container:hover {
+  width: 30%;
+  font-size: 105%;
+}
+
+#cursor {
+  position: absolute;
+  z-index: 10000;
+  width: 2.5%;
+  height: auto;
+}
+
+#footer {
+   position:fixed;
+   left:0px;
+   bottom:0px;
+   height:30px;
+   width:100%;
+   background-color: red;
+   list-style-type: none;
+   margin: 0;
+   padding: 0;
+   overflow: hidden;
+}
+.footer_item {
+  font-family: monospace;
+  float: left;
+  font-size: 32px;
+  font-style: bold;
+  color: white;
+}
+#clock {
+  font-size: 32px;
+  font-style: bold;
+  font-family: monospace;
+  color: white;
+  float: right;
+  text-align: center;
 }
