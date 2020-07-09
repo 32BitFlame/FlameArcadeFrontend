@@ -2,6 +2,7 @@ html {
   background-image: url("./main_images/pixelstarbg.gif");
   cursor: none;
   font-family: Sans-serif;
+  overflow: hidden;
 }
 
 body {
