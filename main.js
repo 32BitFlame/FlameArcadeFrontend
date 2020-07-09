@@ -7,15 +7,6 @@ const {app, BrowserWindow} = electron;
 let Window;
 
 var robot = require('robotjs');
-var joypad = require('joypad.js')
-joypad.on('connect', e => {
-  const { id } = e.gamepad;
-  console.log(`${id} connected`);
-});
-joypad.on('button_press', e => {
-    const { buttonName } = e.detail;
-    console.log(`${buttonName} was pressed!`);
-});
 const fs = require("fs")
 function dumpJson(filePath) {
   console.log(`Loading ${filePath}`)
@@ -79,9 +70,6 @@ httpServer.post('/set_screen_res/', function(req, res) {
   Window.show()
 })
 
-httpServer.listen(5665);
-
-app.whenReady().then(createWindow);
 
 
 function get_items() {
@@ -114,6 +102,21 @@ httpServer.get('/get_games/', function(req, res) {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(processed_systems));
 })
+
+httpServer.post('/send_input', function(req, res) {
+  // Send controller inputs to be processed here
+  console.log("processing input")
+  var current_mouse_position = robot.getMousePos()
+  var current_mouse_x = current_mouse_position.x
+  var current_mouse_y = current_mouse_position.y
+  robot.moveMouseSmooth(current_mouse_x + req.body.axes.horizontal, current_mouse_y + req.body.axes.vertical)
+  if(req.body.click) {
+    console.log("clicked")
+    console.log(req.body.axes)
+  }
+});
+
+
 function get_image(path) {
   // Loads image and returns base64 string with data
   const base64 = fs.readFileSync(path).toString('base64');
@@ -124,3 +127,7 @@ function closeApp() {
     httpServer.close()
     app.close()
 }
+
+httpServer.listen(5665);
+
+app.whenReady().then(createWindow);

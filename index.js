@@ -31,6 +31,8 @@ function format_string(string, parameters) {
   }
   return string_arr.join('')
 }
+
+
 $(document).ready(function() {
   // Sends screen resolution to backend
   var screen_width = window.screen.width
@@ -68,10 +70,86 @@ $(document).ready(function() {
       })
     })
   });
-  });
+});
 
-function input_loop() {
-  var gamepads = navigator.getGamepads()
-  console.log(gamepads)
+function is_btn_pressed(btn) {
+  return typeof(btn) == "object" ? btn.pressed : b == 1.0
 }
-input_loop()
+
+let click_btn_index = 1;
+let horizontal_axis = 0;
+let vertical_axis = 1;
+let gamepads_pressed_prev_frame = {};
+
+let gamepad_states = {}
+function get_active_gamepads() {
+  var arr = []
+  for(var gamepad_index in gamepad_states){
+    if(gamepad_states[gamepad_index]) {
+      arr.push(gamepad_index)
+    }
+  };
+  return arr
+}
+window.addEventListener("gamepadconnected", function(e) {
+  console.log(`gamepad ${e.gamepad.index} connected`);
+  gamepad_states[e.gamepad.index] = true
+});
+window.addEventListener('gamepaddisconnected', function(e) {
+    console.log(`gamepad ${e.gamepad.index} disconnected`);
+    gamepad_states[e.gamepad.index] = false
+});
+
+let horizontal_threshold = 0.4;
+let vertical_threshold = 0.4;
+let mouse_spd = 1;
+function input_loop() {
+  // TODO: Set up controller configuration
+  var horizontal_input = 0;
+  var vertical_input = 0;
+  let click_btn_down = false;
+  var active_pads = get_active_gamepads();
+  for(i = 0; i < active_pads.length; i++) {
+    var gamepad_index = active_pads[i]
+    var gamepad = navigator.getGamepads()[i];
+    horizontal_input += gamepad.axes[horizontal_axis];
+    vertical_input += gamepad.axes[vertical_axis];
+    var is_clicked = is_btn_pressed(gamepad.buttons[click_btn_index]);
+    if(is_clicked && !gamepads_pressed_prev_frame[gamepad.index]) {
+      // Checks if button is just pressed down by checking where it was last frame
+      click_btn_down = true;
+    }
+    gamepads_pressed_prev_frame[gamepad.index] = is_clicked;
+  };
+  var processed_horizontal
+  if(horizontal_input > horizontal_threshold) {
+    processed_horizontal = horizontal_input * mouse_spd
+  } else if (horizontal_input < -horizontal_threshold) {
+    processed_horizontal = horizontal_input * mouse_spd
+  } else {
+    processed_horizontal = 0
+  }
+
+  var processed_vertical;
+  if(vertical_input > vertical_threshold) {
+    processed_vertical = vertical_input * mouse_spd
+  } else if (vertical_input < -vertical_threshold) {
+    processed_vertical = vertical_input * mouse_spd
+  } else {
+    processed_vertical = 0
+  }
+
+  var inputs = {
+    "axes":{
+      "horizontal":processed_horizontal,
+      "vertical":processed_vertical
+    },
+    "click":click_btn_down
+  }
+  if(inputs['click']) {
+    console.log("pressed")
+  }
+  $.post('http://localhost:5665/send_input', inputs);
+  window.requestAnimationFrame(input_loop)
+}
+window.requestAnimationFrame(input_loop)
