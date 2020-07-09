@@ -3,7 +3,7 @@ var httpServer = express();
 var bodyParser = require('body-parser')
 let systems = {}
 const electron = require('electron');
-const {app, BrowserWindow} = electron;
+const {app, BrowserWindow, ipcMain} = electron;
 let Window;
 
 var robot = require('robotjs');
@@ -103,16 +103,18 @@ httpServer.get('/get_games/', function(req, res) {
     res.end(JSON.stringify(processed_systems));
 })
 
-httpServer.post('/send_input', function(req, res) {
+ipcMain.on('send_input', function(e, arg) {
   // Send controller inputs to be processed here
-  console.log("processing input")
+  //console.log(`=======\n${arg}\n========`)
+  var req = JSON.parse(arg)
+  //console.log("processing input")
   var current_mouse_position = robot.getMousePos()
   var current_mouse_x = current_mouse_position.x
   var current_mouse_y = current_mouse_position.y
-  robot.moveMouseSmooth(current_mouse_x + req.body.axes.horizontal, current_mouse_y + req.body.axes.vertical)
-  if(req.body.click) {
-    console.log("clicked")
-    console.log(req.body.axes)
+  robot.moveMouseSmooth(current_mouse_x + req.axes.horizontal, current_mouse_y + req.axes.vertical)
+  if(req.click) {
+    //console.log("clicked")
+    //console.log(req.axes)
   }
 });
 

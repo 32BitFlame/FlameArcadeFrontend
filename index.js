@@ -1,6 +1,17 @@
 console.log("text");
+const input_delay = 6
 let game_template = "<div>{name}</div>"
 let system_template = "<div></div>"
+
+function sleep(t) {
+  //Wait t milliseconds
+  const date = Date.now();
+  let current_date = null;
+  do {
+    current_date = Date.now();
+  } while (current_date - date < t);
+}
+
 // NOTE: USE ROBOTJS FOR MOUSE CONTROL
 function format_string(string, parameters) {
   var escape_start = 0
@@ -70,6 +81,7 @@ $(document).ready(function() {
       })
     })
   });
+  setInterval(input_loop, input_delay)
 });
 
 function is_btn_pressed(btn) {
@@ -100,8 +112,8 @@ window.addEventListener('gamepaddisconnected', function(e) {
     gamepad_states[e.gamepad.index] = false
 });
 
-let horizontal_threshold = 0.4;
-let vertical_threshold = 0.4;
+let horizontal_threshold = 0;
+let vertical_threshold = 0;
 let mouse_spd = 1;
 function input_loop() {
   // TODO: Set up controller configuration
@@ -148,8 +160,9 @@ function input_loop() {
   }
   if(inputs['click']) {
     console.log("pressed")
+    console.log(`processed_horizontal: ${processed_horizontal}, processed_vertical: ${processed_vertical}`)
   }
-  $.post('http://localhost:5665/send_input', inputs);
-  window.requestAnimationFrame(input_loop)
+  const {ipcRenderer} = require('electron')
+  ipcRenderer.send('send_input', JSON.stringify(inputs));
+  window.requestAnimationFrame(input_loop);
 }
-window.requestAnimationFrame(input_loop)
