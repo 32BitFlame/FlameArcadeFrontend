@@ -226,7 +226,7 @@ $("html").on("mousemove", function (e) {
 
 setInterval(input_loop, input_delay)
 
-const clock_update_delay = 200;
+const clock_update_delay = 500;
 const seconds_enabled = true;
 const twenty_four_hour_time = false
 function update_clock() {
