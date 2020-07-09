@@ -1,9 +1,9 @@
 {
-  "animated_images":true,
+  "animated_images":false,
   "input_delay":24,
   "clock_update_delay":1000,
   "clock":{
-    "seconds_enabled": true,
+    "seconds_enabled": false,
     "twenty_four_hour_time":false
   }
 }

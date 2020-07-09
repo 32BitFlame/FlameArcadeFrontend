@@ -1,7 +1,10 @@
 console.log("text");
-const input_delay = 400
+
 let game_template = "<div data-gamelink=`{link}` data-system=`{system}`>{name}</div>"
 let system_template = "<div></div>"
+
+const configuration = require("./configuration.json")
+const input_delay = configuration.input_delay
 
 function sleep(t) {
   //Wait t milliseconds
@@ -44,7 +47,12 @@ function format_string(string, parameters) {
 }
 
 var selected_game_div
+let animations_enabled = configuration.animated_images
 $(document).ready(function() {
+  if(!animations_enabled) {
+    $("#cursor").attr("src", "./cursors/coin_circle-static.png")
+    $("html").css("background-image", `url("./main_images/pixelstarbg-static.png")`)
+  }
   // Sends screen resolution to backend
   var screen_width = window.screen.width
   var screen_height = window.screen.height
@@ -226,9 +234,9 @@ $("html").on("mousemove", function (e) {
 
 setInterval(input_loop, input_delay)
 
-const clock_update_delay = 500;
-const seconds_enabled = true;
-const twenty_four_hour_time = false
+const clock_update_delay = configuration.clock_update_delay;
+const seconds_enabled = configuration.clock.seconds_enabled;
+const twenty_four_hour_time = configuration.clock.twenty_four_hour_time
 function update_clock() {
   var current_date = new Date();
   var time = ""
