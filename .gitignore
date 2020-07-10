@@ -102,3 +102,8 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Configuration files
+./gamelist-paths.json
+./controllers.json
+./configuration.json
