@@ -142,6 +142,24 @@ httpServer.post('/start_game/', function(req, res) {
   })
 });
 
+function min(num1, num2) {
+  // Returns the  highest of the values passed
+  if(num2 > num1) {
+    return num2
+  } else {
+    return num1
+  }
+}
+function max(num1, num2) {
+  // Returns the  lowest of the values passed
+  if(num2 < num1) {
+    return num2
+  } else {
+    return num1
+  }
+}
+const controller_config = dumpJson("./controllers.json")
+const deadzone = controller_config.deadzone
 ipcMain.on('send_input', function(e, arg) {
   // Send controller inputs to be processed here
   //console.log(`=======\n${arg}\n========`)
@@ -150,7 +168,27 @@ ipcMain.on('send_input', function(e, arg) {
   var current_mouse_position = robot.getMousePos()
   var current_mouse_x = current_mouse_position.x
   var current_mouse_y = current_mouse_position.y
-  robot.moveMouse(current_mouse_x + req.axes.horizontal, current_mouse_y + req.axes.vertical)
+  var horizontal_movement = req.axes.horizontal
+  if(horizontal_movement > 0) {
+    if(horizontal_movement < deadzone) {
+      horizontal_movement = 0
+    }
+  } else {
+    if(horizontal_movement > -deadzone) {
+      horizontal_movement = 0
+    }
+  }
+  var vertical_movement = req.axes.vertical
+  if(vertical_movement > 0) {
+    if(vertical_movement < deadzone) {
+      vertical_movement = 0
+    }
+  } else {
+    if(vertical_movement > -deadzone) {
+      vertical_movement = 0
+    }
+  }
+  robot.moveMouse(current_mouse_x + horizontal_movement, current_mouse_y + vertical_movement)
   if(req.click) {
     //console.log("clicked")
     //console.log(req.axes)
