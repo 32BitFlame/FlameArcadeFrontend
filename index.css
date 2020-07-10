@@ -29,13 +29,16 @@ body {
   border-width: 4px;
   overflow: hidden;
   font-size: 100%;
+  padding-left: 1px;
+  padding-right: 1px;
   display: inline-block;
   text-align: center;
-  transition-property: width, height, min-height;
+  transition-property: padding-left, padding-right;
   transition-duration: 1s;
 }
 .game_container:hover {
-  width: 30%;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 #cursor {

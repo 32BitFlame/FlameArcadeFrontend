@@ -1,0 +1,10 @@
+{
+  "animated_images":true,
+  "input_delay":24,
+  "clock_update_delay":1000,
+  "clock":{
+    "seconds_enabled": true,
+    "twenty_four_hour_time":false,
+    "hours_zero_prefix":true
+  }
+}
