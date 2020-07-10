@@ -31,12 +31,11 @@ body {
   font-size: 100%;
   display: inline-block;
   text-align: center;
-  transition-property: width, height, min-height, font-size;
+  transition-property: width, height, min-height;
   transition-duration: 1s;
 }
 .game_container:hover {
   width: 30%;
-  font-size: 105%;
 }
 
 #cursor {
