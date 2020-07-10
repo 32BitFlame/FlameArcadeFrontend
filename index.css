@@ -20,6 +20,7 @@ body {
   height: auto;
   overflow-y: hidden;
   white-space: nowrap;
+  overflow-y: visible;
 }
 .game_container {
   width: 25%;
@@ -33,12 +34,8 @@ body {
   padding-right: 1px;
   display: inline-block;
   text-align: center;
-  transition-property: padding-left, padding-right;
-  transition-duration: 1s;
-}
-.game_container:hover {
-  padding-left: 10px;
-  padding-right: 10px;
+  transition-property: padding-left, padding-right, padding, background-color, transform;
+  transition-duration: 0.5s;
 }
 
 #cursor {

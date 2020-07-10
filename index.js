@@ -51,7 +51,6 @@ function min_digit_count(length, num) {
   //    minimum digit count
   var str = String(num);
   var str_length_diff = length - str.length
-  console.log(str_length_diff)
   var new_str = ""
   if(str_length_diff > 0) {
     for(var i = 0; i < str_length_diff; i++) {
@@ -103,6 +102,7 @@ $(document).ready(function() {
           "system":system.name
         }));
         game_container.addClass("game_container")
+        /*
         game_container.hover(function() {
             // Enter hover
             console.log("selecting game div")
@@ -112,6 +112,24 @@ $(document).ready(function() {
               $(this).css("border-style", "solid")
               selected_game_div = null;
           });
+        */
+        game_container.bind('mouseenter', function() {
+            // Enter hover
+            console.log("selecting game div")
+            selected_game_div = $(this)
+            $(this).css({
+              "background-color": "rgba(0, 102, 255, 1)"
+            })
+        });
+
+        game_container.bind('mouseleave', function() {
+          // Exit hover
+          $(this).css({
+            "background-color": "rgba(0, 102, 255, 0.5)",
+            "border-style": "solid"
+          })
+          selected_game_div = null
+        });
         system_container.append(game_container)
         });
         $("#systems_container").append(system_container)
