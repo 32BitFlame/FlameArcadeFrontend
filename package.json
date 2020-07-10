@@ -4,7 +4,7 @@
   "description": "An arcade frontend",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"Error: there are no tests for this application\"",
     "start": "electron ."
   },
   "author": "Benjamin Houzenga",
