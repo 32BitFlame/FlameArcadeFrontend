@@ -46,6 +46,21 @@ function format_string(string, parameters) {
   return string_arr.join('')
 }
 
+function min_digit_count(length, num) {
+  // Coverts object to string if not already and forced it to have at least the
+  //    minimum digit count
+  var str = String(num);
+  var str_length_diff = length - str.length
+  console.log(str_length_diff)
+  var new_str = ""
+  if(str_length_diff > 0) {
+    for(var i = 0; i < str_length_diff; i++) {
+      new_str += "0"
+    }
+  }
+  new_str += str
+  return new_str
+}
 var selected_game_div
 let animations_enabled = configuration.animated_images
 $(document).ready(function() {
@@ -102,18 +117,19 @@ $(document).ready(function() {
         $("#systems_container").append(system_container)
       })
     })
+    $(".game_container").click(function() {
+      var gamepath = $(this).attr("data-path")
+      var system = $(this).attr("data-system")
+      console.log(`Loading ${gamepath} for system: ${system}`)
+      $.post("http://localhost:5665/start_game", {
+        "path":gamepath,
+        "system":system
+      })
+    });
     setTimeout(input_loop, 10);
   });
 
-$(".game_container").click(function() {
-  var gamepath = $(this).attr("data-path")
-  var system = $(this).attr("data-system")
-  console.log(`Loading ${gamepath} for system: ${system}`)
-  $.post("http://localhost:5665/start_game", {
-    "path":gamepath,
-    "system":system
-  })
-});
+
 const border_toggle_delay = 100;
 function toggle_game_container_border() {
   if(selected_game_div != null) {
@@ -237,12 +253,17 @@ setInterval(input_loop, input_delay)
 const clock_update_delay = configuration.clock_update_delay;
 const seconds_enabled = configuration.clock.seconds_enabled;
 const twenty_four_hour_time = configuration.clock.twenty_four_hour_time
+const hours_zero_prefix = configuration.clock.hours_zero_prefix
 function update_clock() {
   var current_date = new Date();
   var time = ""
-  var time = `${twenty_four_hour_time ? current_date.getHours(): current_date.getHours() % 12}:${current_date.getMinutes()}`;
+  var hours = twenty_four_hour_time ? current_date.getHours(): current_date.getHours() % 12
+  if(hours_zero_prefix) {
+    hours = min_digit_count(2, hours)
+  }
+  var time = `${hours}:${min_digit_count(2,current_date.getMinutes())}`;
   if(seconds_enabled) {
-    time += `:${current_date.getSeconds()}`
+    time += `:${min_digit_count(2, current_date.getSeconds())}`
   }
   $("#clock").text(time)
 }
