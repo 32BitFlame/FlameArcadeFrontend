@@ -1,3 +1,4 @@
 {
-  "deadzone":0.04
+  "deadzone":0.04,
+  "controller_to_mouse_enabled":true
 }

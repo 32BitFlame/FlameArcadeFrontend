@@ -1,6 +1,5 @@
 html {
   background-image: url("./main_images/pixelstarbg.gif");
-  cursor: none;
   font-family: Sans-serif;
   overflow: hidden;
 }
@@ -18,11 +17,11 @@ body {
   background-color: rgba(50,0,0,0.3);
   width: 80%;
   height: auto;
-  overflow-y: hidden;
+  overflow: hidden;
   white-space: nowrap;
-  overflow-y: visible;
 }
 .game_container {
+  display: block;
   width: 25%;
   min-height: 200px;
   background-color: rgba(0, 102, 255, 0.5);
@@ -34,8 +33,8 @@ body {
   padding-right: 1px;
   display: inline-block;
   text-align: center;
-  transition-property: padding-left, padding-right, padding, background-color, transform;
-  transition-duration: 0.5s;
+  transition-property: padding-left, padding-right;
+  transition-duration: 1s;
 }
 
 #cursor {

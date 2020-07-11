@@ -1,7 +1,5 @@
-console.log("text");
-
-let game_template = "<div data-gamelink=`{link}` data-system=`{system}`>{name}</div>"
-let system_template = "<div></div>"
+let game_template = "<li data-gamelink=`{link}` data-system=`{system}`><a>{name}</a></li>"
+let system_template = "<ul></ul>"
 
 const configuration = require("./configuration.json")
 const input_delay = configuration.input_delay
@@ -13,6 +11,28 @@ function sleep(t) {
   do {
     current_date = Date.now();
   } while (current_date - date < t);
+}
+
+// Since dictionaries can have dot notation this is an enum essentially
+const CURSORS = {
+  "coin_circle":0,
+  "none":1
+}
+let cursor = CURSORS.coin_circle;
+
+let coin_animation_frame = 0;
+const coin_animation_length = 22
+function coin_cursor_animation() {
+  if(cursor == CURSORS.coin_circle) {
+
+    coin_animation_frame+=1
+    if(coin_animation_frame > coin_animation_length-1) {
+      coin_animation_frame = 0
+    }
+    var coin_image_url = `"./cursors/coin_circle_frames/coin_circle_${min_digit_count(2, coin_animation_frame)}.png"`
+    console.log(coin_image_url)
+    $("html").css("cursor", `url(${coin_image_url}), auto`)
+  }
 }
 
 // NOTE: USE ROBOTJS FOR MOUSE CONTROL
@@ -62,10 +82,15 @@ function min_digit_count(length, num) {
 }
 var selected_game_div
 let animations_enabled = configuration.animated_images
+
 $(document).ready(function() {
   if(!animations_enabled) {
-    $("#cursor").attr("src", "./cursors/coin_circle-static.png")
-    $("html").css("background-image", `url("./main_images/pixelstarbg-static.png")`)
+    $("html").css({
+      "background-image": `url("./main_images/pixelstarbg-static.png")`,
+      "cursor":"url(url(\"./cursors/coin_circle-static.png\"), auto)"
+    });
+  } else {
+    setInterval(coin_cursor_animation, configuration.cursor_delay)
   }
   // Sends screen resolution to backend
   var screen_width = window.screen.width
@@ -130,24 +155,21 @@ $(document).ready(function() {
           })
           selected_game_div = null
         });
+        console.log(game_container.is(".game_container"))
         system_container.append(game_container)
         });
         $("#systems_container").append(system_container)
       })
     })
-    $(".game_container").click(function() {
-      var gamepath = $(this).attr("data-path")
-      var system = $(this).attr("data-system")
-      console.log(`Loading ${gamepath} for system: ${system}`)
-      $.post("http://localhost:5665/start_game", {
-        "path":gamepath,
-        "system":system
-      })
+    $(document).on('click', "#footer", function() {
+      console.log("text")
     });
     setTimeout(input_loop, 10);
   });
 
-
+function get_all_system_containers() {
+  return $(".system_container")
+}
 const border_toggle_delay = 100;
 function toggle_game_container_border() {
   if(selected_game_div != null) {
@@ -211,24 +233,8 @@ function input_loop() {
     gamepads_pressed_prev_frame[gamepad.index] = is_clicked;
   };
   var processed_horizontal
-  /*if(horizontal_input > horizontal_threshold) {
-    processed_horizontal = horizontal_input * mouse_spd
-  } else if (horizontal_input < -horizontal_threshold) {
-    processed_horizontal = horizontal_input * mouse_spd
-  } else {
-    processed_horizontal = 0
-  }
-  */
   processed_horizontal = horizontal_input * mouse_spd
   var processed_vertical;
-  /*if(vertical_input > vertical_threshold) {
-    processed_vertical = vertical_input * mouse_spd
-  } else if (vertical_input < -vertical_threshold) {
-    processed_vertical = vertical_input * mouse_spd
-  } else {
-    processed_vertical = 0
-  }
-  */
   processed_vertical = vertical_input * mouse_spd
   var inputs = {
     "axes":{

@@ -160,7 +160,13 @@ function max(num1, num2) {
 }
 const controller_config = dumpJson("./controllers.json")
 const deadzone = controller_config.deadzone
+const controller_to_mouse = controller_config.controller_to_mouse_enabled
 ipcMain.on('send_input', function(e, arg) {
+  if(controller_to_mouse) {
+    process_input_mouse(arg)
+  }
+});
+function process_input_mouse(arg) {
   // Send controller inputs to be processed here
   //console.log(`=======\n${arg}\n========`)
   var req = JSON.parse(arg)
@@ -193,8 +199,7 @@ ipcMain.on('send_input', function(e, arg) {
     //console.log("clicked")
     //console.log(req.axes)
   }
-});
-
+}
 
 function get_image(path) {
   // Loads image and returns base64 string with data
