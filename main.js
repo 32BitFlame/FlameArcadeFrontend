@@ -160,10 +160,18 @@ function max(num1, num2) {
 }
 const controller_config = dumpJson("./controllers.json")
 const deadzone = controller_config.deadzone
-const controller_to_mouse = controller_config.controller_to_mouse_enabled
+let controller_to_mouse = controller_config.controller_to_mouse_enabled
 ipcMain.on('send_input', function(e, arg) {
   if(controller_to_mouse) {
     process_input_mouse(arg)
+  }
+});
+
+ipcMain.on("toggle_controller_to_mouse", function(req, res) {
+  console.log("toggle controller")
+  controller_to_mouse = !controller_to_mouse
+  if(!controller_to_mouse) {
+    robot.moveMouse(0,0)
   }
 });
 function process_input_mouse(arg) {
@@ -194,7 +202,9 @@ function process_input_mouse(arg) {
       vertical_movement = 0
     }
   }
-  robot.moveMouse(current_mouse_x + horizontal_movement, current_mouse_y + vertical_movement)
+  if(controller_to_mouse) {
+    robot.moveMouse(current_mouse_x + horizontal_movement, current_mouse_y + vertical_movement)
+  }
   if(req.click) {
     //console.log("clicked")
     //console.log(req.axes)

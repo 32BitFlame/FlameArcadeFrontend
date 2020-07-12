@@ -30,7 +30,6 @@ function coin_cursor_animation() {
       coin_animation_frame = 0
     }
     var coin_image_url = `"./cursors/coin_circle_frames/coin_circle_${min_digit_count(2, coin_animation_frame)}.png"`
-    console.log(coin_image_url)
     $("html").css("cursor", `url(${coin_image_url}), auto`)
   }
 }
@@ -112,6 +111,9 @@ $(document).ready(function() {
         // TODO: Put system display configuration here
       }))
       system_container.addClass("system_container")
+      system_container.on("mouseenter", function() {
+        console.log("system selected")
+      });
       system.games.forEach(function(game, index) {
         console.log("Adding...")
         console.log(format_string(game_template, {
@@ -186,11 +188,6 @@ function is_btn_pressed(btn) {
   return typeof(btn) == "object" ? btn.pressed : b == 1.0
 }
 
-let click_btn_index = 1;
-let horizontal_axis = 0;
-let vertical_axis = 1;
-let gamepads_pressed_prev_frame = {};
-
 let gamepad_states = {}
 function get_active_gamepads() {
   var arr = []
@@ -214,6 +211,13 @@ let horizontal_threshold = 0;
 let vertical_threshold = 0;
 let mouse_spd = 10;
 const {ipcRenderer} = require('electron')
+let click_btn_index = 1;
+let horizontal_axis = 0;
+let vertical_axis = 1;
+let change_mouse_mode_index = 10
+let gamepads_pressed_prev_frame = {};
+let gamepads_pressed_switch_mode_prev_frame = {}
+let gamestyle_menu = false;
 function input_loop() {
   // TODO: Set up controller configuration
   var horizontal_input = 0;
@@ -230,6 +234,23 @@ function input_loop() {
       // Checks if button is just pressed down by checking where it was last frame
       click_btn_down = true;
     }
+    if(is_btn_pressed(gamepad.buttons[change_mouse_mode_index]) && !gamepads_pressed_switch_mode_prev_frame[gamepad.index]) {
+      console.log("switching")
+      ipcRenderer.send("toggle_controller_to_mouse", "")
+      if(cursor==CURSORS.coin_circle) {
+        cursor = CURSORS.none
+        $("html").css("cursor", "none")
+        $(".system_container").css("overflow", "hidden")
+        gamestyle_menu = true
+      } else {
+        cursor = CURSORS.coin_circle
+        $(".system_container").css("overflow", "scroll")
+        //console.log(document.getElementById()).scrollLeft)
+        gamestyle_menu = false;
+        
+      }
+    }
+    gamepads_pressed_switch_mode_prev_frame[gamepad.index] = is_btn_pressed(gamepad.buttons[change_mouse_mode_index])
     gamepads_pressed_prev_frame[gamepad.index] = is_clicked;
   };
   var processed_horizontal
@@ -257,6 +278,11 @@ function input_loop() {
     }
   }
   ipcRenderer.send('send_input', JSON.stringify(inputs));
+
+  if(gamestyle_menu) {
+    // Gamestyle menu code
+
+  }
   //sleep(input_delay)
   //input_loop()
 }
@@ -264,14 +290,6 @@ var cursor_offset = {
    left: 0,
    top: 0
 }
-$("html").on("mousemove", function (e) {
-  $('#cursor').offset({
-     left: (e.pageX - cursor_offset.left)
-   , top : (e.pageY - cursor_offset.top)
-  })
-
-});
-
 setInterval(input_loop, input_delay)
 
 const clock_update_delay = configuration.clock_update_delay;
