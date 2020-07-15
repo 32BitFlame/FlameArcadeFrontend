@@ -167,9 +167,9 @@ ipcMain.on('send_input', function(e, arg) {
   }
 });
 
-ipcMain.on("toggle_controller_to_mouse", function(req, res) {
+ipcMain.on("toggle_controller_to_mouse", function(e, arg) {
   console.log("toggle controller")
-  controller_to_mouse = !controller_to_mouse
+  controller_to_mouse = arg
   if(!controller_to_mouse) {
     robot.moveMouse(0,0)
   }

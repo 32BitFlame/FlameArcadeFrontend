@@ -1,5 +1,5 @@
-let game_template = "<li data-gamelink=`{link}` data-system=`{system}`><a>{name}</a></li>"
-let system_template = "<ul></ul>"
+let game_template = "<div data-gamelink=`{link}` data-system=`{system}`><a>{name}</a></div>"
+let system_template = "<div></div>"
 
 const configuration = require("./configuration.json")
 const input_delay = configuration.input_delay
@@ -23,8 +23,8 @@ let cursor = CURSORS.coin_circle;
 let coin_animation_frame = 0;
 const coin_animation_length = 22
 function coin_cursor_animation() {
+  // This function changes images on the mouse to make it look like a moving sprite
   if(cursor == CURSORS.coin_circle) {
-
     coin_animation_frame+=1
     if(coin_animation_frame > coin_animation_length-1) {
       coin_animation_frame = 0
@@ -34,7 +34,6 @@ function coin_cursor_animation() {
   }
 }
 
-// NOTE: USE ROBOTJS FOR MOUSE CONTROL
 function format_string(string, parameters) {
   var escape_start = 0
   var escaped = false
@@ -42,7 +41,7 @@ function format_string(string, parameters) {
   var escape_buffer = ""
   for(i = 0; i < string_arr.length; i++) {
     var char = string_arr[i]
-    //console.log(`Char: ${i}; ${char}, escaped: ${escaped}`)
+ console.log(`Char: ${i}; ${char}, escaped: ${escaped}`)
     if(!escaped) {
       if(char == "{") {
         //console.log(`Starting escape at ${i}`)
@@ -79,9 +78,42 @@ function min_digit_count(length, num) {
   new_str += str
   return new_str
 }
-var selected_game_div
+
 let animations_enabled = configuration.animated_images
 
+let selected_game_div
+let selected_system_div
+let _selected_system_index = 0
+let _selected_game_index = 0
+
+function set_selected_game_index(index) {
+  if(index != -1) {
+    console.log(`Showing ${index}`)
+    selected_system_div.children().eq(index).css({
+      "background-color": "rgba(0, 102, 255, 1)"
+    })
+  }
+  console.log(`Hiding ${_selected_game_index}`)
+  selected_system_div.children().eq(_selected_game_index).css({
+    "background-color": "rgba(0, 102, 255, 0.5)",
+    "border-style": "solid"
+  })
+  _selected_game_index = index
+
+  selected_game_div = selected_system_div.children().eq(index)
+}
+
+function set_selected_system_index(index) {
+  set_selected_game_index(-1)
+  console.log(`changing to system index: ${index}`)
+  _selected_system_index = index
+  selected_system_div = $("#systems_container").children().eq(_selected_system_index)
+  var pos = selected_system_div.position()
+  var new_top = pos.top + (selected_system_div.outerHeight() / 2) - ($(".current_system_id_sidebar").first().outerHeight()/2)
+  $(".current_system_id_sidebar").css("top", new_top)
+  set_selected_game_index(0)
+
+}
 $(document).ready(function() {
   if(!animations_enabled) {
     $("html").css({
@@ -112,8 +144,23 @@ $(document).ready(function() {
       }))
       system_container.addClass("system_container")
       system_container.on("mouseenter", function() {
-        console.log("system selected")
+        var system_container_index
+        var this_system = $(this)
+        console.log("selecting system...")
+        $("#systems_container").children().each(function(index, _system_container) {
+          console.log(`Checking index: ${index}`)
+          if(this_system.is(_system_container)) {
+            console.log(`system selected: ${index}`)
+            set_selected_system_index(index)
+            return false;
+          }
+        });
       });
+      /*
+      system_container.on("mouseleave", function() {
+        selected_game_div = null
+      });
+      */
       system.games.forEach(function(game, index) {
         console.log("Adding...")
         console.log(format_string(game_template, {
@@ -129,24 +176,16 @@ $(document).ready(function() {
           "system":system.name
         }));
         game_container.addClass("game_container")
-        /*
-        game_container.hover(function() {
-            // Enter hover
-            console.log("selecting game div")
-            selected_game_div = $(this)
-          }, function() {
-              // Exit hover
-              $(this).css("border-style", "solid")
-              selected_game_div = null;
-          });
-        */
         game_container.bind('mouseenter', function() {
             // Enter hover
-            console.log("selecting game div")
-            selected_game_div = $(this)
-            $(this).css({
-              "background-color": "rgba(0, 102, 255, 1)"
-            })
+            let _selected_game_div = $(this)
+            system_container.children().each(function(index, _system_container) {
+              if($(this).is(_selected_game_div)) {
+                console.log(`Selecting game at index ${index}`)
+                set_selected_game_index(index)
+                return false;
+              }
+            });
         });
 
         game_container.bind('mouseleave', function() {
@@ -155,7 +194,6 @@ $(document).ready(function() {
             "background-color": "rgba(0, 102, 255, 0.5)",
             "border-style": "solid"
           })
-          selected_game_div = null
         });
         console.log(game_container.is(".game_container"))
         system_container.append(game_container)
@@ -166,7 +204,8 @@ $(document).ready(function() {
     $(document).on('click', "#footer", function() {
       console.log("text")
     });
-    setTimeout(input_loop, 10);
+    setInterval(input_loop, input_delay);
+    load_controller_config()
   });
 
 function get_all_system_containers() {
@@ -184,6 +223,7 @@ function toggle_game_container_border() {
 
 }
 setInterval(toggle_game_container_border, border_toggle_delay)
+
 function is_btn_pressed(btn) {
   return typeof(btn) == "object" ? btn.pressed : b == 1.0
 }
@@ -214,10 +254,27 @@ const {ipcRenderer} = require('electron')
 let click_btn_index = 1;
 let horizontal_axis = 0;
 let vertical_axis = 1;
+let vertical_menu_change_threshold = 0.6
+let horizontal_menu_change_threshold = 0.6
 let change_mouse_mode_index = 10
+let controller_config = require("./controllers.json")
+function load_controller_config() {
+  // TODO: Introduce per controller configuration
+  horizontal_axis = controller_config.index_config[0].horizontal_axis
+  vertical_axis = controller_config.index_config[0].vertical_axis
+  click_btn_index = controller_config.index_config[0].vertical_axis
+  change_mouse_mode_index = controller_config.index_config[0].change_input_mode
+}
 let gamepads_pressed_prev_frame = {};
 let gamepads_pressed_switch_mode_prev_frame = {}
+let gamepads_axes_prev_frame = {}
 let gamestyle_menu = false;
+const gamestyle_menu_scroll_point_right = window.screen.width - (window.screen.width * 0.3)
+const gamestyle_menu_scroll_point_left = (window.screen.width * 0.15)
+const scroll_spd = controller_config.scroll_spd
+
+let set_controller_mode = !controller_config.controller_to_mouse_enabled
+let gamepad;
 function input_loop() {
   // TODO: Set up controller configuration
   var horizontal_input = 0;
@@ -234,24 +291,30 @@ function input_loop() {
       // Checks if button is just pressed down by checking where it was last frame
       click_btn_down = true;
     }
-    if(is_btn_pressed(gamepad.buttons[change_mouse_mode_index]) && !gamepads_pressed_switch_mode_prev_frame[gamepad.index]) {
+    if((is_btn_pressed(gamepad.buttons[change_mouse_mode_index]) && !gamepads_pressed_switch_mode_prev_frame[gamepad.index]) || set_controller_mode) {
       console.log("switching")
-      ipcRenderer.send("toggle_controller_to_mouse", "")
+      ipcRenderer.send("toggle_controller_to_mouse", false)
       if(cursor==CURSORS.coin_circle) {
         cursor = CURSORS.none
         $("html").css("cursor", "none")
         $(".system_container").css("overflow", "hidden")
         gamestyle_menu = true
+        if(selected_system_div == null) {
+          selected_system_div = $("#systems_container").children().first()
+          set_selected_game_index(0)
+          set_selected_system_index(0)
+        }
+        set_controller_mode = false
       } else {
+        ipcRenderer.send("toggle_controller_to_mouse", true)
         cursor = CURSORS.coin_circle
-        $(".system_container").css("overflow", "scroll")
         //console.log(document.getElementById()).scrollLeft)
         gamestyle_menu = false;
-        
+
       }
     }
-    gamepads_pressed_switch_mode_prev_frame[gamepad.index] = is_btn_pressed(gamepad.buttons[change_mouse_mode_index])
     gamepads_pressed_prev_frame[gamepad.index] = is_clicked;
+    gamepads_pressed_switch_mode_prev_frame[gamepad.index] = is_btn_pressed(gamepad.buttons[change_mouse_mode_index])
   };
   var processed_horizontal
   processed_horizontal = horizontal_input * mouse_spd
@@ -281,16 +344,58 @@ function input_loop() {
 
   if(gamestyle_menu) {
     // Gamestyle menu code
-
+    var prev_frame_horizontal = gamepads_axes_prev_frame.horizontal
+    var prev_frame_vertical = gamepads_axes_prev_frame.vertical
+    var current_system_games_length = selected_system_div.children(".game_container").length
+    var current_system_count = $("#systems_container").children(".system_container").length
+    if(processed_horizontal > horizontal_menu_change_threshold && !(prev_frame_horizontal > horizontal_menu_change_threshold)) {
+      if(_selected_game_index+1 < current_system_games_length) {
+        set_selected_game_index(_selected_game_index+1)
+      } else {
+        set_selected_game_index(0)
+      }
+    } else if(processed_horizontal < -horizontal_menu_change_threshold && !(prev_frame_horizontal < -horizontal_menu_change_threshold)) {
+      if(_selected_game_index-1 >= 0) {
+        set_selected_game_index(_selected_game_index-1)
+      } else {
+        set_selected_game_index(current_system_games_length-1)
+      }
+    }
+    if(processed_vertical > vertical_menu_change_threshold && !(prev_frame_vertical > vertical_menu_change_threshold)) {
+      if(_selected_system_index+1 < current_system_count) {
+        set_selected_system_index(_selected_system_index+1);
+      } else {
+        set_selected_system_index(0)
+      }
+    } else if(processed_vertical < -vertical_menu_change_threshold && !(prev_frame_vertical < -vertical_menu_change_threshold)) {
+      if(_selected_system_index-1 >= 0) {
+        set_selected_system_index(_selected_system_index-1);
+      } else {
+        set_selected_system_index(current_system_count-1)
+      }
+    }
+    var screen_width = window.screen.width
+    var screen_height = window.screen.height
+    if(selected_game_div != null) {
+      var current_game_pos = selected_game_div.position().left + (selected_game_div.width() / 2);
+      var current_scroll_amount = selected_system_div.scrollLeft()
+      if(current_game_pos > gamestyle_menu_scroll_point_right) {
+        selected_system_div.scrollLeft(current_scroll_amount + scroll_spd)
+      } else if(current_game_pos < gamestyle_menu_scroll_point_left) {
+        selected_system_div.scrollLeft(current_scroll_amount - scroll_spd)
+      }
+    }
   }
   //sleep(input_delay)
   //input_loop()
+  gamepads_axes_prev_frame["horizontal"] = processed_horizontal
+  gamepads_axes_prev_frame["vertical"] = processed_vertical
 }
 var cursor_offset = {
    left: 0,
    top: 0
 }
-setInterval(input_loop, input_delay)
+
 
 const clock_update_delay = configuration.clock_update_delay;
 const seconds_enabled = configuration.clock.seconds_enabled;

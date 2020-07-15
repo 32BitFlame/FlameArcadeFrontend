@@ -10,5 +10,17 @@
       "imgpath":"E:/TestRomsFolder/frogger_logo.png",
       "enable-gradient":true
     }
+  },
+  {
+    "image-aspect-ratio":"16:9",
+    "shortname":"2",
+    "gamelistfile":"E:/TestRomsFolder/gamelist.json",
+    "runcmd":"nestopia --fullscreen {rom_path}",
+    "systemlaunchdate": 1985,
+    "special_graphic": {
+      "enabled":false,
+      "imgpath":"E:/TestRomsFolder/frogger_logo.png",
+      "enable-gradient":true
+    }
   }
 ]

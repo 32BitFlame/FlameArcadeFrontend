@@ -2,32 +2,61 @@ html {
   background-image: url("./main_images/pixelstarbg.gif");
   font-family: Sans-serif;
   overflow: hidden;
+  display: block;
 }
 
 body {
   background-color: rgba(0,0,0,0);
 }
-.systems_container {
-  display: flex;
-  justify-content: center;
+#systems_container {
+  display: block;
+  margin: auto;
+  white-space: normal;
 }
 .system_container {
-  display: flex;
+  box-sizing: border-box;
+  position: relative;
+  white-space: nowrap;
+  padding-top: 10px;
+  padding-bottom:10px;
+  display: block;
   color: white;
   background-color: rgba(50,0,0,0.3);
   width: 80%;
+  margin: auto;
   height: auto;
-  overflow: hidden;
-  white-space: nowrap;
+  overflow-y: hidden;
+  overflow-x: scroll;
+}
+.system_container::-webkit-scrollbar {
+  display: none;
+}
+.current_system_id_sidebar {
+  position: absolute;
+  top: -200px;
+  width: 20px;
+  height: 100px;
+  background-color: white;
+  transition-property: top, color;
+  transition-duration: 1s;
+}
+#current_system_id_sidebar_left {
+  left: 0;
+}
+#current_system_id_sidebar_right {
+  right: 0;
 }
 .game_container {
-  display: block;
+  white-space: nowrap;
+  display: inline-block;
+  position: relative;
   width: 25%;
-  min-height: 200px;
+  min-width: 15%;
+  max-width: 30%;
+  height: 200px;
   background-color: rgba(0, 102, 255, 0.5);
   border-style: solid;
   border-width: 4px;
-  overflow: hidden;
   font-size: 100%;
   padding-left: 1px;
   padding-right: 1px;
@@ -54,11 +83,12 @@ body {
    list-style-type: none;
    margin: 0;
    padding: 0;
-   overflow: hidden;
+   overflow: visible;
 }
 .footer_item {
   font-family: monospace;
   float: left;
+  background-color: red;
   font-size: 32px;
   font-style: bold;
   color: white;
@@ -70,4 +100,17 @@ body {
   color: white;
   float: right;
   text-align: center;
+}
+#LOGO {
+  position: absolute;
+  background-color: red;
+  left: 0;
+  top: 93%;
+  height: 5%;
+  font-size: 100%;
+  width: auto;
+  border-color: white;
+  border-radius: 2.5vh;
+  border-width: 5px;
+  border-style: solid;
 }
