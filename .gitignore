@@ -106,4 +106,4 @@ dist
 # Configuration files
 ./gamelist-paths.json
 ./controllers.json
-./configuration.json
+./gamelist-paths.json

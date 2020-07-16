@@ -278,7 +278,14 @@ const scroll_spd = controller_config.scroll_spd
 
 let set_controller_mode = !controller_config.controller_to_mouse_enabled
 let gamepad;
+var input_enabled = true;
+ipcRenderer.on("enable_input", function(e, arg) {
+  input_enabled = Boolean(arg)
+})
 function input_loop() {
+  if(!input_enabled) {
+    return
+  }
   // TODO: Set up controller configuration
   var horizontal_input = 0;
   var vertical_input = 0;
@@ -398,7 +405,6 @@ var cursor_offset = {
    left: 0,
    top: 0
 }
-
 
 const clock_update_delay = configuration.clock_update_delay;
 const seconds_enabled = configuration.clock.seconds_enabled;

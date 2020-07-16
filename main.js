@@ -73,13 +73,17 @@ function create_subprocess(process) {
     }
   }
   // Minimize when started
+  Window.setFullScreen(false);
   Window.minimize()
   console.log(`${cmd} ${args}`)
   var process = spawn(cmd, args)
+  ipcMain.send("enable_input", String(false))
   process.on('close', function(code) {
     console.log(`Exit code: ${code}`)
     // Maximize when subprocess is completed
     Window.maximize()
+    Window.setFullScreen(true);
+    ipcMain.send("enable_input", String(true))
   });
 }
 httpServer.use(bodyParser.json());
