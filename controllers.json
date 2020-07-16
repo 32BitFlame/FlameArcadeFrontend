@@ -1,8 +1,8 @@
 {
   "deadzone":0.04,
-  "controller_to_mouse_enabled":false,
+  "controller_to_mouse_enabled":true,
   "scroll_spd":50,
-  "gamestyle_menu_enabled_default":true,
+  "gamestyle_menu_enabled_default":false,
   "index_config":[
     {
       "horizontal_axis":0,

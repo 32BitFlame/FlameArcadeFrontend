@@ -1,4 +1,4 @@
-let game_template = "<div data-gamelink=`{link}` data-system=`{system}`><a>{name}</a></div>"
+let game_template = "<div data-gamelink={link} data-system={system}><a>{name}</a></div>"
 let system_template = "<div></div>"
 
 const configuration = require("./configuration.json")
@@ -87,6 +87,9 @@ let _selected_system_index = 0
 let _selected_game_index = 0
 
 function set_selected_game_index(index) {
+  if(selected_system_div == null) {
+    return
+  }
   if(index != -1) {
     console.log(`Showing ${index}`)
     selected_system_div.children().eq(index).css({
@@ -107,12 +110,11 @@ function set_selected_system_index(index) {
   set_selected_game_index(-1)
   console.log(`changing to system index: ${index}`)
   _selected_system_index = index
-  selected_system_div = $("#systems_container").children().eq(_selected_system_index)
+  selected_system_div = $("#systems_container").children(".system_container").eq(_selected_system_index)
   var pos = selected_system_div.position()
   var new_top = pos.top + (selected_system_div.outerHeight() / 2) - ($(".current_system_id_sidebar").first().outerHeight()/2)
   $(".current_system_id_sidebar").css("top", new_top)
   set_selected_game_index(0)
-
 }
 $(document).ready(function() {
   if(!animations_enabled) {
@@ -147,7 +149,7 @@ $(document).ready(function() {
         var system_container_index
         var this_system = $(this)
         console.log("selecting system...")
-        $("#systems_container").children().each(function(index, _system_container) {
+        $("#systems_container").children(".system_container").each(function(index, _system_container) {
           console.log(`Checking index: ${index}`)
           if(this_system.is(_system_container)) {
             console.log(`system selected: ${index}`)
@@ -199,6 +201,7 @@ $(document).ready(function() {
         system_container.append(game_container)
         });
         $("#systems_container").append(system_container)
+        $('#systems_container').append($("<br></br>"))
       })
     })
     $(document).on('click', "#footer", function() {
@@ -300,7 +303,7 @@ function input_loop() {
         $(".system_container").css("overflow", "hidden")
         gamestyle_menu = true
         if(selected_system_div == null) {
-          selected_system_div = $("#systems_container").children().first()
+          selected_system_div = $("#systems_container").children(".system_container").first()
           set_selected_game_index(0)
           set_selected_system_index(0)
         }

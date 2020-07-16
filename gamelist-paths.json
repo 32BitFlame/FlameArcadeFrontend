@@ -13,7 +13,7 @@
   },
   {
     "image-aspect-ratio":"16:9",
-    "shortname":"2",
+    "shortname":"sys2",
     "gamelistfile":"E:/TestRomsFolder/gamelist.json",
     "runcmd":"nestopia --fullscreen {rom_path}",
     "systemlaunchdate": 1985,

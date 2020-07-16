@@ -1,10 +1,10 @@
 var express = require('express');
 var httpServer = express();
 var bodyParser = require('body-parser')
-let systems = {}
+var systems = {}
 const electron = require('electron');
 const {app, BrowserWindow, ipcMain} = electron;
-let Window;
+var Window;
 
 var robot = require('robotjs');
 const fs = require("fs")
@@ -74,6 +74,7 @@ function create_subprocess(process) {
   }
   // Minimize when started
   Window.minimize()
+  console.log(`${cmd} ${args}`)
   var process = spawn(cmd, args)
   process.on('close', function(code) {
     console.log(`Exit code: ${code}`)
@@ -104,8 +105,8 @@ httpServer.post('/set_screen_res/', function(req, res) {
 function get_items() {
 
 }
-let system_run_cmds = {}
-let gamelists = require("./gamelist-paths.json")
+var system_run_cmds = {}
+var gamelists = require("./gamelist-paths.json")
 httpServer.get('/get_games/', function(req, res) {
     var processed_systems = {}
     gamelists.forEach(function(system, i){
@@ -125,21 +126,25 @@ httpServer.get('/get_games/', function(req, res) {
       new_sys["name"] = systemname
       new_sys["special_graphic"] = null
       new_sys["game_image_aspect_ratio"] = system["image-aspect-ratio"]
-      system_run_cmds[systemname] = system["runcmd"]
+      system_run_cmds[String(systemname)] = String(system["runcmd"])
       processed_systems[systemname] = new_sys
     })
     res.setHeader('Content-Type', 'application/json');
     console.log(system_run_cmds)
+    console.log(system_run_cmds["nes"])
     res.end(JSON.stringify(processed_systems));
 })
 
 httpServer.post('/start_game/', function(req, res) {
-  var path = req.body.path
-  var system = req.body.system
+  var path = String(req.body.path)
+  var system = String(req.body.system)
+  var cmd = system_run_cmds[system]
   console.log(`Loading ${path} with system ${system}`)
-  var run_cmd = format_string(system_run_cmds[system], {
+  var run_cmd = format_string(String(cmd), {
     "rom_path":path
   })
+  create_subprocess(run_cmd)
+  console.log(`starting with cmd: '${run_cmd}'`)
 });
 
 function min(num1, num2) {
@@ -160,7 +165,7 @@ function max(num1, num2) {
 }
 const controller_config = dumpJson("./controllers.json")
 const deadzone = controller_config.deadzone
-let controller_to_mouse = controller_config.controller_to_mouse_enabled
+var controller_to_mouse = controller_config.controller_to_mouse_enabled
 ipcMain.on('send_input', function(e, arg) {
   if(controller_to_mouse) {
     process_input_mouse(arg)
