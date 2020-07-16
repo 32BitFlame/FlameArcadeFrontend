@@ -23,6 +23,9 @@ let cursor = CURSORS.coin_circle;
 let coin_animation_frame = 0;
 const coin_animation_length = 22
 function coin_cursor_animation() {
+  if(!input_enabled) {
+    return
+  }
   // This function changes images on the mouse to make it look like a moving sprite
   if(cursor == CURSORS.coin_circle) {
     coin_animation_frame+=1
@@ -216,6 +219,9 @@ function get_all_system_containers() {
 }
 const border_toggle_delay = 100;
 function toggle_game_container_border() {
+  if(!input_enabled) {
+    return
+  }
   if(selected_game_div != null) {
     if(selected_game_div.css("border-style") == "outset") {
       selected_game_div.css("border-style", "inset")
