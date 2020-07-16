@@ -61,6 +61,7 @@ function format_string(string, parameters) {
 
 var spawn = require('child_process').spawn
 function create_subprocess(process) {
+  Window.webContents.send("enable_input", String(false))
   // Break into command and arguments
   var split_process = process.split(" ")
   let cmd
@@ -77,7 +78,6 @@ function create_subprocess(process) {
   Window.minimize()
   console.log(`${cmd} ${args}`)
   var process = spawn(cmd, args)
-  Window.webContents.send("enable_input", String(false))
   process.on('close', function(code) {
     console.log(`Exit code: ${code}`)
     // Maximize when subprocess is completed
