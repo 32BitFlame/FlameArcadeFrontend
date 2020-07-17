@@ -347,6 +347,7 @@ function input_loop() {
     console.log(`raw_normal: ${horizontal_input}, processed_vertical: ${vertical_input}`)
     console.log(`processed_horizontal: ${processed_horizontal}, processed_vertical: ${processed_vertical}`)
     if(selected_game_div != null) {
+      enable_input = false
       var gamepath = selected_game_div.attr("data-gamelink")
       var system = selected_game_div.attr("data-system")
       console.log(`starting ${gamepath} on system ${system} `)
