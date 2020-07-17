@@ -77,12 +77,13 @@ function create_subprocess(process) {
   Window.setFullScreen(false);
   Window.minimize()
   console.log(`${cmd} ${args}`)
+  Window.webContents.send("enable_input", false)
   exec(process, function(error, stdout, stderr) {
     console.log(`Stderr: ${stderr}`)
     // Maximize when subprocess is completed
     Window.maximize()
     Window.setFullScreen(true);
-    Window.webContents.send("enable_input", String(true))
+    Window.webContents.send("enable_input", true)
   });
 }
 httpServer.use(bodyParser.json());

@@ -286,11 +286,12 @@ let set_controller_mode = !controller_config.controller_to_mouse_enabled
 let gamepad;
 var input_enabled = true;
 ipcRenderer.on("enable_input", function(e, arg) {
-  input_enabled = Boolean(arg)
+  console.log(`toggle: ${arg}`)
+  input_enabled = arg
 })
 function input_loop() {
   if(!input_enabled) {
-    return
+    return false
   }
   // TODO: Set up controller configuration
   var horizontal_input = 0;
