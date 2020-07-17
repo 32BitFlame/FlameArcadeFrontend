@@ -59,7 +59,7 @@ function format_string(string, parameters) {
   return string_arr.join('')
 }
 
-var spawn = require('child_process').spawn
+const { exec } = require('child_process')
 function create_subprocess(process) {
   Window.webContents.send("enable_input", String(false))
   // Break into command and arguments
@@ -77,9 +77,8 @@ function create_subprocess(process) {
   Window.setFullScreen(false);
   Window.minimize()
   console.log(`${cmd} ${args}`)
-  var process = spawn(cmd, args)
-  process.on('close', function(code) {
-    console.log(`Exit code: ${code}`)
+  exec(process, function(error, stdout, stderr) {
+    console.log(`Stderr: ${stderr}`)
     // Maximize when subprocess is completed
     Window.maximize()
     Window.setFullScreen(true);
