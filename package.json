@@ -10,7 +10,7 @@
   "author": "Benjamin Houzenga",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^9.0.5"
+    "electron": "^9.3.1"
   },
   "dependencies": {
     "body-parser": "^1.19.0",
